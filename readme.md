@@ -19,7 +19,7 @@ Com IDEs eu sugiro usar o [VSCode](https://code.visualstudio.com/), como também
 # Instale o expo-cli
 $ npm install -g expo-cli
 
-#Fora do terminal crie uma pasta chamada ProjetosReact na área de trabalho e inicie o Bash,após isso pegue o link do diretório do GitHub que você deu Fork. Volte para o terminal e siga as instruções.
+#Fora do terminal crie uma pasta chamada ProjetosReact na área de trabalho e inicie o Bash, após isso pegue o link do diretório do GitHub. Volte para o terminal e siga as instruções.
 
 #Clone o repositório
 $ git clone <https://github.com/apenasDuart/projfacul.git> # No meu exemplo

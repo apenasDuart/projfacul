@@ -25,31 +25,33 @@ export default function Login({ navigation }) {
 
   const handleLogin = async () => {
     setError('');
-
+  
     // Verificações dos campos
     if (!email) {
       exibirErro('Espaço do email em branco');
       return;
     }
-
+  
     if (!senha) {
       exibirErro('Espaço da senha em branco');
       return;
     }
-
+  
     // Verifica se o email existe no banco de dados
     const existingUser = await getUserByEmail(email);
     
     if (!existingUser) {
-      exibirErro('email não cadastrado');
+      exibirErro('Email não cadastrado');
       return;
     }
-
+  
     // Agora tenta fazer o login
     try {
       const user = await loginUser(email, senha);
       alert(`Login bem-sucedido! Bem-vindo, ${user.nome}`);
-      navigation.navigate('Home');
+      
+      // Navega para a HomeScreen passando o email como parâmetro
+      navigation.navigate('Home', { email: user.email });
       
     } catch (err) {
       // Aqui lidamos com o erro de senha inválida

@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   cadastreSeText: {
-    color: 'blue',
+    color: '#00bff2',
     fontWeight: 'bold',
   },
 });

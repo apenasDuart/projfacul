@@ -11,7 +11,7 @@
 ### Pré-requisitos
 Para da início ao projeto, você ira precisar ter algumas ferramentas na sua máquina:
 [Node.js](https://nodejs.org/pt), [Git](https://git-scm.com/).
-Com IDEs eu sugiro usar o [VSCode](https://code.visualstudio.com/), como também o [Android Studio](https://developer.android.com/studio?hl=pt-br) é uma ótima opção.
+Sobre IDEs eu sugiro usar o [VSCode](https://code.visualstudio.com/), como também o [Android Studio](https://developer.android.com/studio?hl=pt-br) é uma ótima opção.
 
 ### Configurando o ambiente de desenvolvimento.
 

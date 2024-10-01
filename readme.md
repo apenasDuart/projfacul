@@ -45,4 +45,4 @@ As ferramentas que estão sendo utilizadas no desenvolvimento do projeto são:
 - [SQlite](https://www.sqlite.org/index.html)
 
 
-Made with by 🎇 Gabriel Matt [Linkedin](https://www.linkedin.com/in/gabrielcortesduarte/) e 🤓João Washington [Linkedin](https://www.linkedin.com/in/jo%C3%A3o-washington-mendes-57a6a3297/).
+Made with by 🎇 Gabriel Matt [Linkedin](https://www.linkedin.com/in/gabrielcortesduarte/) e João Washington [Linkedin](https://www.linkedin.com/in/jo%C3%A3o-washington-mendes-57a6a3297/).

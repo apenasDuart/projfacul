@@ -6,7 +6,7 @@
 <p>Este é um projeto de extensão da faculdade em React Native, o intuito dele é ser uma agenda virtual para os alunos verem os próximos eventos e também poderem verificar os horários de aula.</p>
 
 
-<h3 align= "center">📱Projeto agenda virutal  🚨  Em Desenvolvimento...📱 </h3>
+<h3 align= "center">📱Projeto agenda virtual  🚨  Em Desenvolvimento...📱 </h3>
 
 ### Pré-requisitos
 Para da início ao projeto, você ira precisar ter algumas ferramentas na sua máquina:

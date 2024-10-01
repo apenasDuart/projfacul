@@ -428,7 +428,7 @@ const styles = StyleSheet.create({
     borderColor: '#ccc',
   },
   navbar: {
-    backgroundColor: '#00bff2',
+    backgroundColor: 'white',  //#00bff2
     position: 'absolute',
     paddingTop: 2,
     paddingBottom: 2,
@@ -524,48 +524,48 @@ const styles = StyleSheet.create({
   containerEventos: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#f8f9fa', // Fundo suave para a tela de eventos
+    backgroundColor: '#f8f9fa', 
   },
   tituloEventos: {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 16,
-    textAlign: 'center', // Centraliza o título
+    textAlign: 'center', 
   },
   cardEvento: {
-    backgroundColor: '#ffffff', // Fundo branco para cada item de evento
-    borderRadius: 10, // Bordas arredondadas
+    backgroundColor: '#ffffff', 
+    borderRadius: 10, 
     padding: 16,
     marginBottom: 12,
-    shadowColor: '#000', // Sombra
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 2,
     },
     shadowOpacity: 0.2,
     shadowRadius: 2,
-    elevation: 3, // Para Android
-    height: 100, // Altura fixa para o cartão do evento
-    width: '100%', // Largura total do contêiner pai
-    maxWidth: 400, // Largura máxima para garantir que não fique muito largo em telas grandes
+    elevation: 3, 
+    height: 100, 
+    width: '100%', 
+    maxWidth: 400, 
   },
   tituloEvento: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#00bff2', // Cor azul para o título do evento
+    color: '#00bff2', 
   },
   dataEvento: {
     fontSize: 14,
-    color: '#666', // Cor cinza para a data
-    marginTop: 4, // Espaço acima da data
+    color: '#666', 
+    marginTop: 4, 
   },
   listContainer: {
-    paddingBottom: 16, // Espaçamento adicional no fundo da lista
+    paddingBottom: 16, 
   },
   emptyMessage: {
     fontSize: 18,
-    color: '#999', // Cor suave para a mensagem de vazio
-    textAlign: 'center', // Centraliza a mensagem
+    color: '#999', 
+    textAlign: 'center', 
   },
 });

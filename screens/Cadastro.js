@@ -9,8 +9,10 @@ export default function Cadastro({ navigation }) {
   const [senha, setSenha] = useState('');
   const [confirmarSenha, setConfirmarSenha] = useState('');
   const [turma, setTurma] = useState('');
+  const [tipoUsuario, setTipoUsuario] = useState('aluno');
   const [error, setError] = useState('');
   const [turmaModalVisible, setTurmaModalVisible] = useState(false);
+  const [tipoUsuarioModalVisible, setTipoUsuarioModalVisible] = useState(false);
   const [errorModalVisible, setErrorModalVisible] = useState(false);
   const [isGifFinished, setIsGifFinished] = useState(false);
 
@@ -18,6 +20,12 @@ export default function Cadastro({ navigation }) {
     { id: 1, nome: 'Turma A' },
     { id: 2, nome: 'Turma B' },
     { id: 3, nome: 'Turma C' },
+  ];
+
+  const tiposUsuario = [
+    { id: 1, nome: 'Aluno' },
+    { id: 2, nome: 'Professor' },
+    { id: 3, nome: 'Diretor' },
   ];
 
   useEffect(() => {
@@ -52,7 +60,7 @@ export default function Cadastro({ navigation }) {
   };
 
   const cadastro = async () => {
-    if (!nome || !email || !senha || !confirmarSenha || !turma) {
+    if (!nome || !email || !senha || !confirmarSenha || !turma || !tipoUsuario) {
       exibirErro('Por favor, preencha todos os campos.');
       return;
     }
@@ -68,7 +76,7 @@ export default function Cadastro({ navigation }) {
     }
 
     try {
-      await registerUser(nome, email, senha, turma);
+      await registerUser(nome, email, senha, turma, tipoUsuario.toLowerCase());
       alert('Usuário cadastrado com sucesso!');
       navigation.navigate('Login');
     } catch (err) {
@@ -100,6 +108,10 @@ export default function Cadastro({ navigation }) {
       <TextInput secureTextEntry={true} placeholder="Digite sua senha" style={styles.textInput} onChangeText={setSenha} value={senha} />
       <TextInput secureTextEntry={true} placeholder="Confirme sua senha" style={styles.textInput} onChangeText={setConfirmarSenha} value={confirmarSenha} />
 
+      <TouchableOpacity style={styles.turmaInput} onPress={() => setTipoUsuarioModalVisible(true)}>
+        <Text style={styles.turmaText}>{tipoUsuario || 'Selecione o tipo'}</Text>
+      </TouchableOpacity>
+
       <TouchableOpacity style={styles.turmaInput} onPress={abrirModalTurmas}>
         <Text style={styles.turmaText}>{turma || 'Selecione sua turma'}</Text>
       </TouchableOpacity>
@@ -111,6 +123,33 @@ export default function Cadastro({ navigation }) {
       <TouchableOpacity style={styles.btnCadastro} onPress={cadastro} activeOpacity={0.8}>
         <Text style={styles.btnText}>CADASTRAR!</Text>
       </TouchableOpacity>
+
+      {/* Modal para escolher tipo de usuário */}
+      <Modal visible={tipoUsuarioModalVisible} transparent={true} animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Selecione seu tipo:</Text>
+            <FlatList
+              data={tiposUsuario}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.modalItem}
+                  onPress={() => {
+                    setTipoUsuario(item.nome);
+                    setTipoUsuarioModalVisible(false);
+                  }}
+                >
+                  <Text style={styles.modalText}>{item.nome}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity style={styles.modalCloseButton} onPress={() => setTipoUsuarioModalVisible(false)}>
+              <Text style={styles.modalCloseText}>Fechar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Modal para escolher turma */}
       <Modal visible={turmaModalVisible} transparent={true} animationType="slide">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, FlatList, Image, TouchableOpacity, ActivityIndicator, Modal, ScrollView, TextInput, Alert } from 'react-native';
-import { getUserByEmail, updateUserImage, updateUserDetails, initDatabaseWithTables, updatePassword } from '../db/database';
+import { getUserByEmail, updateUserImage, updateUserDetails, initDatabaseWithTables, updatePassword, getScheduleByTurma, getEventsByTurma, populateInitialData, addSchedule, deleteSchedule, updateSchedule } from '../db/database';
 import * as ImagePicker from 'expo-image-picker';
 
 
@@ -9,16 +9,25 @@ export default function Home({ route, navigation }) {
   const [schedule, setSchedule] = useState([]);
   const [events, setEvents] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
+  const [editScheduleModalVisible, setEditScheduleModalVisible] = useState(false);
   const [loading, setLoading] = useState(true);
   const [newName, setNewName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  const [editingSchedule, setEditingSchedule] = useState(null);
+  const [editTime, setEditTime] = useState('');
+  const [editMonday, setEditMonday] = useState('');
+  const [editTuesday, setEditTuesday] = useState('');
+  const [editWednesday, setEditWednesday] = useState('');
+  const [editThursday, setEditThursday] = useState('');
+  const [editFriday, setEditFriday] = useState('');
 
   useEffect(() => {
     const init = async () => {
       await initDatabaseWithTables();
+      await populateInitialData();
       await loadUserData();
     };
     init();
@@ -30,8 +39,8 @@ export default function Home({ route, navigation }) {
       setUser(userData);
       setNewName(userData.nome);
       setNewEmail(userData.email);
-      loadSchedule(userData.turma);
-      loadEvents(userData.turma);
+      await loadSchedule(userData.turma);
+      await loadEvents(userData.turma);
     } else {
       console.error('Email não fornecido.');
       navigation.navigate('Login');
@@ -39,56 +48,24 @@ export default function Home({ route, navigation }) {
     setLoading(false);
   };
 
-  const loadSchedule = (turma) => {
-    const schedules = {
-       'Turma A': [
-    { time: '7:00 - 7:50', monday: 'Ing', tuesday: 'Hist', wednesday: 'Mat', thursday: 'Geo', friday: 'Edu' },
-    { time: '7:50 - 8:40', monday: 'Hist', tuesday: 'Port', wednesday: 'Mat', thursday: 'Cien', friday: 'Mat' },
-    { time: '8:40 - 9:30', monday: 'Mat', tuesday: 'Mat', wednesday: 'Edu', thursday: 'Hist', friday: 'Port' },
-    { time: '9:30 - 9:50', monday: 'Intervalo', tuesday: 'Intervalo', wednesday: 'Intervalo', thursday: 'Intervalo', friday: 'Intervalo' },
-    { time: '9:50 - 10:40', monday: 'Port', tuesday: 'Hist', wednesday: 'Geo', thursday: 'Mat', friday: 'Edu' },
-    { time: '10:40 - 11:30', monday: 'Cien', tuesday: 'Ing', wednesday: 'Hist', thursday: 'Port', friday: 'Mat' },
-    { time: '11:30 - 12:20', monday: 'Edu', tuesday: 'Geo', wednesday: 'Mat', thursday: 'Hist', friday: 'Port' },
-  ],
-  'Turma B': [
-    { time: '7:00 - 7:50', monday: 'Mat', tuesday: 'Geo', wednesday: 'Hist', thursday: 'Edu', friday: 'Cien' },
-    { time: '7:50 - 8:40', monday: 'Física', tuesday: 'Química', wednesday: 'Mat', thursday: 'Port', friday: 'Hist' },
-    { time: '8:40 - 9:30', monday: 'Ing', tuesday: 'Mat', wednesday: 'Geo', thursday: 'Hist', friday: 'Edu' },
-    { time: '9:30 - 9:50', monday: 'Inter', tuesday: 'Inter', wednesday: 'Inter', thursday: 'Inter', friday: 'Inter' },
-    { time: '9:50 - 10:40', monday: 'Mat', tuesday: 'Hist', wednesday: 'Port', thursday: 'Edu', friday: 'Cien' },
-    { time: '10:40 - 11:30', monday: 'Edu', tuesday: 'Mat', wednesday: 'Física', thursday: 'Geo', friday: 'Hist' },
-    { time: '11:30 - 12:20', monday: 'Hist', tuesday: 'Física', wednesday: 'Mat', thursday: 'Port', friday: 'Edu' },
-  ],
-  'Turma C': [
-    { time: '7:00 - 7:50', monday: 'Geo', tuesday: 'Cien', wednesday: 'Mat', thursday: 'Hist', friday: 'Edu' },
-    { time: '7:50 - 8:40', monday: 'Port', tuesday: 'Mat', wednesday: 'Física', thursday: 'Química', friday: 'Geo' },
-    { time: '8:40 - 9:30', monday: 'Hist', tuesday: 'Edu', wednesday: 'Mat', thursday: 'Ing', friday: 'Port' },
-    { time: '9:30 - 9:50', monday: 'Inter', tuesday: 'Inter', wednesday: 'Inter', thursday: 'Inter', friday: 'Inter' },
-    { time: '9:50 - 10:40', monday: 'Edu', tuesday: 'Mat', wednesday: 'Geo', thursday: 'Hist', friday: 'Cien' },
-    { time: '10:40 - 11:30', monday: 'Mat', tuesday: 'Física', wednesday: 'Edu', thursday: 'Port', friday: 'Hist' },
-    { time: '11:30 - 12:20', monday: 'Física', tuesday: 'Geo', wednesday: 'Mat', thursday: 'Edu', friday: 'Hist' },
-  ],
-    };
-    setSchedule(schedules[turma] || []);
+  const loadSchedule = async (turma) => {
+    try {
+      const scheduleData = await getScheduleByTurma(turma);
+      setSchedule(scheduleData);
+    } catch (error) {
+      console.error('Erro ao carregar horário:', error);
+      setSchedule([]);
+    }
   };
 
-  const loadEvents = (turma) => {
-    const eventList = {
-      'Turma A': [
-        { id: '1', title: 'Feira de Ciências', date: '2024-10-10' },
-        { id: '2', title: 'Gincana Escolar', date: '2024-11-05' },
-      ],
-      'Turma B': [
-        { id: '1', title: 'Festival de Artes', date: '2024-09-30' },
-        { id: '2', title: 'Passeio Escolar', date: '2024-12-02' },
-        { id: '3', title: 'Passeio Escolar', date: '2024-12-02' },
-      ],
-      'Turma C': [
-        { id: '1', title: 'Festival de Artes', date: '2024-09-30' },
-        { id: '2', title: 'Passeio Escolar', date: '2024-12-02' },
-      ],
-    };
-    setEvents(eventList[turma] || []);
+  const loadEvents = async (turma) => {
+    try {
+      const eventsData = await getEventsByTurma(turma);
+      setEvents(eventsData);
+    } catch (error) {
+      console.error('Erro ao carregar eventos:', error);
+      setEvents([]);
+    }
   };
 
   const pickImage = async () => {
@@ -232,6 +209,59 @@ export default function Home({ route, navigation }) {
     navigation.navigate('Login');
   };
 
+  // Funções para editar grade horária
+  const handleEditSchedule = (item) => {
+    setEditingSchedule(item);
+    setEditTime(item.time);
+    setEditMonday(item.monday);
+    setEditTuesday(item.tuesday);
+    setEditWednesday(item.wednesday || '');
+    setEditThursday(item.thursday || '');
+    setEditFriday(item.friday || '');
+    setEditScheduleModalVisible(true);
+  };
+
+  const handleSaveSchedule = async () => {
+    if (!editTime || !editMonday || !editTuesday) {
+      Alert.alert('Erro', 'Preencha os campos obrigatórios');
+      return;
+    }
+
+    try {
+      await updateSchedule(editingSchedule.id, user.turma, editTime, editMonday, editTuesday, editWednesday, editThursday, editFriday);
+      setEditScheduleModalVisible(false);
+      await loadSchedule(user.turma);
+      Alert.alert('Sucesso', 'Horário atualizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar horário:', error);
+      Alert.alert('Erro', 'Não foi possível atualizar o horário');
+    }
+  };
+
+  const handleDeleteSchedule = async (id) => {
+    Alert.alert(
+      'Confirmar Exclusão',
+      'Tem certeza que deseja deletar este horário?',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Deletar',
+          onPress: async () => {
+            try {
+              await deleteSchedule(id);
+              await loadSchedule(user.turma);
+              Alert.alert('Sucesso', 'Horário deletado com sucesso!');
+            } catch (error) {
+              console.error('Erro ao deletar horário:', error);
+              Alert.alert('Erro', 'Não foi possível deletar o horário');
+            }
+          },
+          style: 'destructive'
+        }
+      ]
+    );
+  };
+
   useEffect(() => {
     const getPermission = async () => {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -254,7 +284,14 @@ export default function Home({ route, navigation }) {
 
       {/* Grade Horária em formato de tabela */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Grade Horária</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Grade Horária</Text>
+          {user?.tipo_usuario !== 'aluno' && (
+            <TouchableOpacity style={styles.addButton} onPress={() => Alert.alert('Adicionar novo horário não implementado ainda')}>
+              <Text style={styles.addButtonText}>+ Novo</Text>
+            </TouchableOpacity>
+          )}
+        </View>
         <ScrollView horizontal>
           <View style={styles.table}>
             <View style={styles.tableHeader}>
@@ -264,6 +301,7 @@ export default function Home({ route, navigation }) {
               <Text style={styles.tableHeaderText}>Quarta</Text>
               <Text style={styles.tableHeaderText}>Quinta</Text>
               <Text style={styles.tableHeaderText}>Sexta</Text>
+              {user?.tipo_usuario !== 'aluno' && <Text style={styles.tableHeaderText}>Ações</Text>}
             </View>
             {schedule.map((item, index) => (
               <View style={styles.tableRow} key={index}>
@@ -273,6 +311,16 @@ export default function Home({ route, navigation }) {
                 <Text style={styles.tableCell}>{item.wednesday || '-'}</Text>
                 <Text style={styles.tableCell}>{item.thursday || '-'}</Text>
                 <Text style={styles.tableCell}>{item.friday || '-'}</Text>
+                {user?.tipo_usuario !== 'aluno' && (
+                  <View style={styles.actionCell}>
+                    <TouchableOpacity onPress={() => handleEditSchedule(item)} style={styles.editButton}>
+                      <Text style={styles.actionButtonText}>✏️</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => handleDeleteSchedule(item.id)} style={styles.deleteButton}>
+                      <Text style={styles.actionButtonText}>🗑️</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
               </View>
             ))}
           </View>
@@ -372,6 +420,76 @@ export default function Home({ route, navigation }) {
           </View>
         </View>
       </Modal>
+
+      {/* Modal para Editar Grade Horária */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={editScheduleModalVisible}
+        onRequestClose={() => setEditScheduleModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Editar Horário</Text>
+            
+            <Text style={styles.label}>Horário:</Text>
+            <TextInput
+              style={styles.input}
+              value={editTime}
+              onChangeText={setEditTime}
+              placeholder="Ex: 7:00 - 7:50"
+            />
+            
+            <Text style={styles.label}>Segunda:</Text>
+            <TextInput
+              style={styles.input}
+              value={editMonday}
+              onChangeText={setEditMonday}
+              placeholder="Disciplina"
+            />
+            
+            <Text style={styles.label}>Terça:</Text>
+            <TextInput
+              style={styles.input}
+              value={editTuesday}
+              onChangeText={setEditTuesday}
+              placeholder="Disciplina"
+            />
+            
+            <Text style={styles.label}>Quarta:</Text>
+            <TextInput
+              style={styles.input}
+              value={editWednesday}
+              onChangeText={setEditWednesday}
+              placeholder="Disciplina"
+            />
+            
+            <Text style={styles.label}>Quinta:</Text>
+            <TextInput
+              style={styles.input}
+              value={editThursday}
+              onChangeText={setEditThursday}
+              placeholder="Disciplina"
+            />
+            
+            <Text style={styles.label}>Sexta:</Text>
+            <TextInput
+              style={styles.input}
+              value={editFriday}
+              onChangeText={setEditFriday}
+              placeholder="Disciplina"
+            />
+            
+            <TouchableOpacity onPress={handleSaveSchedule} style={styles.confirmButton}>
+              <Text style={styles.confirmButtonText}>Salvar</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity onPress={() => setEditScheduleModalVisible(false)} style={styles.cancelButton}>
+              <Text style={styles.confirmButtonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -391,10 +509,25 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: 20,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginBottom: 10,
+  },
+  addButton: {
+    backgroundColor: '#28a745',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 5,
+  },
+  addButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
   table: {
     borderWidth: 1,
@@ -408,6 +541,7 @@ const styles = StyleSheet.create({
   },
   tableHeaderText: {
     flex: 1,
+    minWidth: 80,
     padding: 10,
     textAlign: 'center',
     fontWeight: 'bold',
@@ -417,10 +551,29 @@ const styles = StyleSheet.create({
   },
   tableCell: {
     flex: 1,
+    minWidth: 80,
     padding: 10,
     borderBottomWidth: 1,
     borderColor: '#ccc',
     textAlign: 'center',
+  },
+  actionCell: {
+    flexDirection: 'row',
+    minWidth: 80,
+    padding: 5,
+    borderBottomWidth: 1,
+    borderColor: '#ccc',
+    justifyContent: 'center',
+    gap: 5,
+  },
+  editButton: {
+    padding: 5,
+  },
+  deleteButton: {
+    padding: 5,
+  },
+  actionButtonText: {
+    fontSize: 16,
   },
   eventItem: {
     padding: 10,
@@ -511,6 +664,13 @@ const styles = StyleSheet.create({
   logoutButtonText: {
     color: '#ffffff',
     fontWeight: 'bold',
+  },
+  cancelButton: {
+    backgroundColor: '#6c757d',
+    padding: 10,
+    borderRadius: 5,
+    alignItems: 'center',
+    marginTop: 10,
   },
   loadingIndicator: {
     flex: 1,
